@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:garage/features/admin/admin_page.dart';
 import 'features/auth/auth_page.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,9 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       // home: FirebaseAuth.instance.currentUser == null ? AuthPage() : HomePageView(),
-      home: AuthPage(),
+      home: AdminPage(),
     );
   }
 }
-
-
