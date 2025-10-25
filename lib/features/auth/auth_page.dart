@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
+import 'package:garage/core/components/custom_button.dart';
+import 'package:garage/core/components/custom_text_field.dart';
+
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});
 
@@ -14,7 +17,7 @@ class AuthPage extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // خلفية داكنة أو صورة (يمكنك استبدال اللون بصورة)
+          /// خلفية
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -24,13 +27,13 @@ class AuthPage extends StatelessWidget {
             ),
           ),
 
-          // تأثير Blur على الخلفية
+          /// تأثير Blur على الخلفية
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
             child: Container(color: Colors.black.withOpacity(0.25)),
           ),
 
-          // الفورم الزجاجي
+          /// الفورم الزجاجي
           Center(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
@@ -59,54 +62,44 @@ class AuthPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 24),
 
-                        // حقل الاسم
-                        _buildTextField(
+                        /// حقل الاسم
+                        CustomTextField(
                           controller: nameController,
-                          icon: Icons.person,
                           hint: 'Name',
+                          type: TextInputType.text,
+                          icon: Icons.person,
                         ),
                         const SizedBox(height: 16),
 
-                        // حقل البريد الإلكتروني
-                        _buildTextField(
+                        /// حقل البريد الإلكتروني
+                        CustomTextField(
                           controller: emailController,
-                          icon: Icons.email,
                           hint: 'Email',
+                          type: TextInputType.emailAddress,
+                          icon: Icons.email,
                         ),
                         const SizedBox(height: 16),
 
-                        // حقل كلمة المرور
-                        _buildTextField(
+                        /// حقل كلمة المرور
+                        CustomTextField(
                           controller: passwordController,
-                          icon: Icons.lock,
                           hint: 'Password',
+                          type: TextInputType.text,
+                          icon: Icons.lock,
                           obscure: true,
                         ),
                         const SizedBox(height: 24),
 
-                        // زر التسجيل
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white.withOpacity(0.3),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            onPressed: () {},
-                            child: const Text(
-                              "Create Account",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
+                        /// زر التسجيل
+                        CustomButton(
+                          text: 'Create Account',
+                          fontSize: 16,
+                          onTap: () {},
                         ),
 
                         const SizedBox(height: 12),
 
-                        // رابط تسجيل الدخول
+                        /// رابط تسجيل الدخول
                         GestureDetector(
                           onTap: () {},
                           child: const Text(
@@ -126,32 +119,6 @@ class AuthPage extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required IconData icon,
-    required String hint,
-    bool obscure = false,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.25),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: obscure,
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: Colors.white),
-          hintText: hint,
-          hintStyle: const TextStyle(color: Colors.white70),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 14),
-        ),
       ),
     );
   }

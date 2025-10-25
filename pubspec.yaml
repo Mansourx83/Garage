@@ -36,3 +36,5 @@ flutter:
   assets:
     - assets/home.jpg
     - assets/logo.png
+    - assets/user.webp
+    - assets/admin.jpg

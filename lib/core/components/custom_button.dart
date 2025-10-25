@@ -1,55 +1,71 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
   final double? radius;
-  final Color? color;
   final Widget? child;
   final double? width;
   final double? height;
-  final Color? borderColor;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
-  final BorderRadius? borderRadius;
-  final Gradient? gradient;
-  final BoxDecoration? decoration;
-  final BoxConstraints? constraints;
   final Function()? onTap;
+  final String text;
+  final double fontSize;
+
   const CustomButton({
     super.key,
     this.radius,
-    this.color,
     this.child,
     this.width,
     this.height,
-    this.borderColor,
     this.padding,
     this.margin,
-    this.borderRadius,
-    this.gradient,
-    this.decoration,
-    this.constraints,
     this.onTap,
+    required this.text,
+    required this.fontSize,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: padding,
-        margin: margin,
-        width: width,
-        height: height,
-        constraints: constraints,
-        decoration: decoration ?? BoxDecoration(
-                gradient: gradient,
-                border: borderColor != null
-                    ? Border.all(color: borderColor ?? Colors.grey)
-                    : null,
-                borderRadius: borderRadius ??
-                    BorderRadius.all(Radius.circular(radius ?? 0.0)),
-                color: color),
-        child: child,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius ?? 16),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            width: width,
+            height: height,
+            padding: padding ?? const EdgeInsets.symmetric(vertical: 14),
+            margin: margin,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(radius ?? 16),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            alignment: Alignment.center,
+            child:
+                child ??
+                Text(
+                  text,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+          ),
+        ),
       ),
     );
   }
