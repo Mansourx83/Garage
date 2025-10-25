@@ -8,11 +8,12 @@ environment:
   sdk: ^3.8.0
 
 dependencies:
-  flutter:
-    sdk: flutter
   cupertino_icons: ^1.0.8
   dropdown_button2: ^2.3.9
+  flutter:
+    sdk: flutter
   icons_launcher: ^3.0.3
+  supabase_flutter: ^2.10.3
 
 dev_dependencies:
   flutter_lints: ^5.0.0
