@@ -4,8 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        // Plugin الخاص بـ Firebase
-        classpath("com.google.gms:google-services:4.4.2")
+      
     }
 }
 

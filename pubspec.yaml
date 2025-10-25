@@ -8,14 +8,10 @@ environment:
   sdk: ^3.8.0
 
 dependencies:
-  cloud_firestore: ^6.0.3
-  cupertino_icons: ^1.0.8
-  dropdown_button2: ^2.3.9
-  firebase_auth: ^6.1.1
-  firebase_core: ^4.2.0
-  firebase_storage: ^13.0.3
   flutter:
     sdk: flutter
+  cupertino_icons: ^1.0.8
+  dropdown_button2: ^2.3.9
   icons_launcher: ^3.0.3
 
 dev_dependencies:
