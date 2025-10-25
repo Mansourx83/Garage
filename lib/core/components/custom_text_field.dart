@@ -11,14 +11,18 @@ class CustomTextField extends StatelessWidget {
     this.icon,
     this.obscure,
     this.maxLength,
+    this.suffixText,
+    this.validator,
   });
 
   final TextEditingController controller;
   final String hint;
+  final String? suffixText;
   final TextInputType type;
   final IconData? icon;
   final bool? obscure;
   final int? maxLength;
+  final String? Function(String?)? validator; // ✅ دالة التحقق
 
   @override
   Widget build(BuildContext context) {
@@ -32,22 +36,39 @@ class CustomTextField extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.white.withOpacity(0.3)),
           ),
-          child: TextField(
+          child: TextFormField(
+            // ✅ استبدلنا TextField بـ TextFormField
             controller: controller,
             keyboardType: type,
             obscureText: obscure ?? false,
             maxLength: maxLength,
-            style: const TextStyle(color: Colors.white, fontSize: 12),
+            validator:
+                validator ??
+                (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter $hint';
+                  }
+                  return null;
+                },
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
             cursorColor: Colors.white,
             decoration: InputDecoration(
-              prefixIcon: icon != null ? Icon(icon, color: Colors.white) : null,
+              prefixIcon: icon != null
+                  ? Icon(icon, color: Colors.white, size: 20)
+                  : null,
+              suffixText: suffixText,
+              suffixStyle: const TextStyle(color: Colors.white70),
               hintText: hint,
               hintStyle: const TextStyle(color: Colors.white70),
               border: InputBorder.none,
-              counterText: "", // يخفي عداد الحروف
+              counterText: "",
               contentPadding: const EdgeInsets.symmetric(
                 vertical: 14,
-                horizontal: 12,
+                horizontal: 8,
               ),
             ),
           ),
