@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:garage/core/constants/constants.dart';
 import 'package:garage/features/admin/admin_page.dart';
+import 'package:garage/features/home/home_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'features/auth/auth_page.dart';
 
@@ -17,8 +18,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // home: FirebaseAuth.instance.currentUser == null ? AuthPage() : HomePageView(),
-      home: AdminPage(),
+      // home: FirebaseAuth.instance.currentUser == null ? AuthPage() : HomePage(),
+      home: HomePage(),
     );
   }
 }

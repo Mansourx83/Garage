@@ -32,7 +32,9 @@ icons_launcher:
 flutter:
   uses-material-design: true
   assets:
-    - assets/home.jpg
+    - assets/
     - assets/logo.png
-    - assets/user.webp
+    - assets/home.jpg
     - assets/admin.jpg
+    - assets/car.jpg
+

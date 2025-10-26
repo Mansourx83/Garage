@@ -21,7 +21,7 @@ class AuthPage extends StatelessWidget {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/home.jpg'),
+                image: AssetImage('assets/car.jpg'),
                 fit: BoxFit.cover,
               ),
             ),
