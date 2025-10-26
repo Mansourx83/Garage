@@ -1,0 +1,3 @@
+String apiUrl = 'https://muyfwnkayewwdghkfmbm.supabase.co';
+String anonKey =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11eWZ3bmtheWV3d2RnaGtmbWJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0MDYwNzksImV4cCI6MjA3Njk4MjA3OX0.XbIeVmfhumb0SQDD35URlOqYhlC0fHGNgFaUeG1YVZE';

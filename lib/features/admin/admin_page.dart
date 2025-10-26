@@ -20,47 +20,46 @@ class _AdminPageState extends State<AdminPage> {
   final _supabase = Supabase.instance.client;
   final _picker = ImagePicker();
 
-  // Controllers for form fields
+  // Controllers
   final _model = TextEditingController();
   final _price = TextEditingController();
   final _engine = TextEditingController();
   final _speed = TextEditingController();
   final _seats = TextEditingController();
 
-  // Dropdown data
   final brands = ['Bmw', 'Lamborghini', 'Audi', 'Ford', 'Dodge', 'Mercedes'];
   String? selectedBrand;
   XFile? imageFile;
   bool isLoading = false;
 
-  // ✅ Unified SnackBar for success/error messages
-  void _showSnack(String text, {bool isError = false}) {
+  // ✅ SnackBar Helper
+  void _showSnack(String message, {bool success = true}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: isError ? Colors.red.shade700 : Colors.green,
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         content: Text(
-          text,
+          message,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
-            fontSize: 14,
           ),
         ),
+        backgroundColor: success ? Colors.green : Colors.red.shade700,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  // 📸 Pick image from gallery
+  // 📸 Pick image
   Future<void> _pickImage() async {
     final picked = await _picker.pickImage(source: ImageSource.gallery);
     if (picked != null) setState(() => imageFile = picked);
   }
 
-  // 🚀 Upload car to Supabase
+  // 🚀 Upload car
   Future<void> _uploadCar() async {
-    // Validate all fields
+    // Validation check
     final error = CarValidator.validateAll(
       engine: _engine.text,
       speed: _speed.text,
@@ -72,27 +71,27 @@ class _AdminPageState extends State<AdminPage> {
     );
 
     if (error != null) {
-      _showSnack(error, isError: true);
+      _showSnack(error, success: false);
       return;
     }
 
+    // Start loading
     setState(() => isLoading = true);
+
     try {
       // Prepare formatted data
       final engine = "${_engine.text.trim()} cc";
       final speed = "${_speed.text.trim()} km/h";
-      final price = "${_price.text.trim()} \$";
+      final price = double.parse(_price.text.trim());
 
-      // Upload image to Supabase Storage
+      // Upload image
       final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final storagePath = 'cars/$fileName';
-      await _supabase.storage
-          .from('cars')
-          .upload(storagePath, File(imageFile!.path));
+      final path = 'cars/$fileName';
+      await _supabase.storage.from('cars').upload(path, File(imageFile!.path));
 
-      final imageUrl = _supabase.storage.from('cars').getPublicUrl(storagePath);
+      final imageUrl = _supabase.storage.from('cars').getPublicUrl(path);
 
-      // Insert data into Supabase table
+      // Insert into table
       await _supabase.from('cars').insert({
         'brand': selectedBrand,
         'model': _model.text.trim(),
@@ -103,16 +102,19 @@ class _AdminPageState extends State<AdminPage> {
         'image_url': imageUrl,
       });
 
-      _showSnack("Car uploaded successfully ✅");
+      // ✅ Show success SnackBar
+      _showSnack("✅ Car uploaded successfully!");
+
+      // Clear all fields
       _clearFields();
     } catch (e) {
-      _showSnack("Upload failed: $e", isError: true);
+      _showSnack("❌ Upload failed: $e", success: false);
     } finally {
+      // Stop loading
       setState(() => isLoading = false);
     }
   }
 
-  // 🧹 Clear all fields
   void _clearFields() {
     _model.clear();
     _price.clear();
@@ -142,19 +144,17 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  // 🎨 Page background with blur effect
   Widget _buildBackground() => Stack(
     fit: StackFit.expand,
     children: [
       const Image(image: AssetImage('assets/admin.jpg'), fit: BoxFit.cover),
       BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-        child: Container(color: Colors.black.withOpacity(0.25)),
+        filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+        child: Container(color: Colors.black.withOpacity(0.40)),
       ),
     ],
   );
 
-  // 🧱 Main form container
   Widget _buildFormContainer(bool isWide) => ClipRRect(
     borderRadius: BorderRadius.circular(20),
     child: BackdropFilter(
@@ -184,7 +184,6 @@ class _AdminPageState extends State<AdminPage> {
             _buildCarDetailsRow(),
             const SizedBox(height: 25),
 
-            // Car model
             CustomTextField(
               controller: _model,
               hint: "Car Model",
@@ -193,7 +192,6 @@ class _AdminPageState extends State<AdminPage> {
             ),
             const SizedBox(height: 20),
 
-            // Price field
             CustomTextField(
               controller: _price,
               hint: "Price",
@@ -206,7 +204,6 @@ class _AdminPageState extends State<AdminPage> {
             _buildImagePicker(),
             const SizedBox(height: 25),
 
-            // Dropdown for brand
             CustomDropdown(
               value: selectedBrand,
               hint: "Choose Brand",
@@ -226,9 +223,9 @@ class _AdminPageState extends State<AdminPage> {
             ),
             const SizedBox(height: 35),
 
-            // Submit button
+            // ✅ Button with loading indicator
             CustomButton(
-              onTap: _uploadCar,
+              onTap: isLoading ? null : _uploadCar,
               width: double.infinity,
               height: 52,
               radius: 12,
@@ -253,7 +250,6 @@ class _AdminPageState extends State<AdminPage> {
     ),
   );
 
-  // 🚗 Row for engine, speed, seats fields
   Widget _buildCarDetailsRow() => Row(
     children: [
       Expanded(
@@ -287,7 +283,6 @@ class _AdminPageState extends State<AdminPage> {
     ],
   );
 
-  // 🖼️ Image picker widget
   Widget _buildImagePicker() => GestureDetector(
     onTap: _pickImage,
     child: Container(
