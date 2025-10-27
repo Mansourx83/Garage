@@ -11,6 +11,7 @@ class CustomButton extends StatelessWidget {
   final Function()? onTap;
   final String text;
   final double fontSize;
+  final Color? color;
 
   const CustomButton({
     super.key,
@@ -21,6 +22,7 @@ class CustomButton extends StatelessWidget {
     this.padding,
     this.margin,
     this.onTap,
+    this.color = Colors.white,
     required this.text,
     required this.fontSize,
   });
@@ -59,7 +61,7 @@ class CustomButton extends StatelessWidget {
                 Text(
                   text,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: color,
                     fontSize: fontSize,
                     fontWeight: FontWeight.bold,
                   ),

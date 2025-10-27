@@ -122,7 +122,7 @@ class _HomePageState extends State<HomePage> {
                       CustomText(
                         text: "Mansour",
                         fontSize: 32,
-                        color: Colors.white,
+                        color: Colors.blueAccent,
                         fontWeight: FontWeight.bold,
                       ),
                     ],

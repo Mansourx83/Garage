@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:garage/core/components/custom_text.dart';
+import 'package:garage/core/components/custom_button.dart'; // تأكد من المسار الصحيح للـ widget
 
 class CarDetails extends StatelessWidget {
   const CarDetails({super.key, required this.carData});
@@ -13,13 +14,13 @@ class CarDetails extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          /// 🌆 خلفية الصورة
+          /// 🌆 خلفية الصورة (صورة العربية نفسها)
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                  'assets/home.jpg',
-                ), // 🖼️ غيّرها حسب الخلفية عندك
+                image: NetworkImage(
+                  carData['image_url'] ?? carData['image'] ?? '',
+                ),
                 fit: BoxFit.cover,
               ),
             ),
@@ -27,8 +28,8 @@ class CarDetails extends StatelessWidget {
 
           /// ✨ تأثير البلور (Glass Effect)
           BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-            child: Container(color: Colors.black.withOpacity(0.25)),
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(color: Colors.black.withOpacity(0.35)),
           ),
 
           /// 🔙 محتوى الصفحة
@@ -54,7 +55,7 @@ class CarDetails extends StatelessWidget {
 
                     const SizedBox(height: 10),
 
-                    /// 🚘 صورة العربية
+                    /// 🚘 صورة العربية (بوضوح أكثر فوق الخلفية)
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
@@ -101,7 +102,7 @@ class CarDetails extends StatelessWidget {
                                 text: "\$${carData['price'] ?? 0}",
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blueAccent,
+                                color: Colors.white,
                               ),
                             ],
                           ),
@@ -112,7 +113,7 @@ class CarDetails extends StatelessWidget {
                             text: "${carData['brand'] ?? 'Brand'}",
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: Colors.blueAccent,
+                            color: Colors.white,
                           ),
 
                           const SizedBox(height: 20),
@@ -129,7 +130,7 @@ class CarDetails extends StatelessWidget {
                               _infoTile(
                                 icon: Icons.flash_on_rounded,
                                 label: "Speed",
-                                value: "${carData['speed'] ?? 'N/A'} km/h",
+                                value: "${carData['speed'] ?? 'N/A'} ",
                               ),
                               _infoTile(
                                 icon: Icons.event_seat_rounded,
@@ -155,27 +156,21 @@ class CarDetails extends StatelessWidget {
 
                     const SizedBox(height: 30),
 
-                    /// 🔘 زر “حجز / شراء”
+                    /// 🔘 زر “Book Now” باستخدام CustomButton
                     Center(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 40,
-                            vertical: 14,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          elevation: 5,
-                        ),
-                        onPressed: () {},
-                        child: const CustomText(
-                          text: "Book Now",
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                      child: CustomButton(
+                        text: "Book Now",
+                        fontSize: 17,
+                        width: double.infinity,
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("🚗 Booking confirmed!"),
+                              backgroundColor: Colors.blueAccent,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],
