@@ -8,6 +8,7 @@ environment:
   sdk: ^3.8.0
 
 dependencies:
+  cached_network_image: ^3.4.1
   cupertino_icons: ^1.0.8
   dropdown_button2: ^2.3.9
   flutter:
@@ -37,4 +38,3 @@ flutter:
     - assets/home.jpg
     - assets/admin.jpg
     - assets/car.jpg
-

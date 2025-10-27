@@ -5,11 +5,17 @@ import 'package:garage/features/home/home_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'features/auth/auth_page.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await Supabase.initialize(url: apiUrl, anonKey: anonKey);
   runApp(const MyApp());
+  _initSupabase(); 
 }
+
+Future<void> _initSupabase() async {
+  await Supabase.initialize(url: apiUrl, anonKey: anonKey);
+  debugPrint("Supabase initialized ✅");
+}
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
