@@ -234,7 +234,7 @@ class _HomePageState extends State<HomePage> {
                                   onTap: () => Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => CarDetailsPage(car: car),
+                                      builder: (_) => CarDetails(carData: car),
                                     ),
                                   ),
                                   child: Container(
