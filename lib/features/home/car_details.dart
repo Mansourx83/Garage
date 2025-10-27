@@ -1,35 +1,65 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:garage/core/components/custom_text.dart';
-import 'package:garage/core/components/custom_button.dart'; // تأكد من المسار الصحيح للـ widget
+import 'package:garage/core/components/custom_button.dart';
 
 class CarDetails extends StatelessWidget {
-  const CarDetails({super.key, required this.carData});
+  const CarDetails({
+    super.key,
+    required this.carData,
+    required this.isDarkMode,
+  });
 
   final Map carData;
+  final bool isDarkMode;
 
   @override
   Widget build(BuildContext context) {
+    // 🎨 ألوان حسب الثيم
+    final Color mainColor = isDarkMode ? Colors.redAccent : Colors.blueAccent;
+    final Color textColor = Colors.white;
+    final Color secondaryText = Colors.white70;
+
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
-          /// 🌆 خلفية الصورة (صورة العربية نفسها)
+          /// 🌆 الخلفية
           Container(
             decoration: BoxDecoration(
-              image: DecorationImage(
-                image: NetworkImage(
-                  carData['image_url'] ?? carData['image'] ?? '',
-                ),
-                fit: BoxFit.cover,
-              ),
+              gradient: isDarkMode
+                  ? const LinearGradient(
+                      colors: [
+                        Color(0xFF0D0D0D),
+                        Color(0xFF1C1C1C),
+                        Color(0xFF2E2E2E),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : null,
+              image: !isDarkMode
+                  ? DecorationImage(
+                      image: NetworkImage(
+                        carData['image_url'] ?? carData['image'] ?? '',
+                      ),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
             ),
           ),
 
-          /// ✨ تأثير البلور (Glass Effect)
+          /// ✨ تأثير البلور أو الشادو حسب الثيم
           BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(color: Colors.black.withOpacity(0.35)),
+            filter: ImageFilter.blur(
+              sigmaX: isDarkMode ? 3 : 10,
+              sigmaY: isDarkMode ? 3 : 10,
+            ),
+            child: Container(
+              color: isDarkMode
+                  ? Colors.black.withOpacity(0.3)
+                  : Colors.black.withOpacity(0.35),
+            ),
           ),
 
           /// 🔙 محتوى الصفحة
@@ -45,9 +75,9 @@ class CarDetails extends StatelessWidget {
                     Align(
                       alignment: Alignment.topLeft,
                       child: IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.arrow_back_ios_new_rounded,
-                          color: Colors.white,
+                          color: textColor,
                         ),
                         onPressed: () => Navigator.pop(context),
                       ),
@@ -55,13 +85,22 @@ class CarDetails extends StatelessWidget {
 
                     const SizedBox(height: 10),
 
-                    /// 🚘 صورة العربية (بوضوح أكثر فوق الخلفية)
+                    /// 🚘 صورة العربية
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        color: Colors.white.withOpacity(0.1),
+                        gradient: isDarkMode
+                            ? const LinearGradient(
+                                colors: [Color(0xFF1C1C1C), Color(0xFF2C2C2C)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )
+                            : null,
+                        color: !isDarkMode
+                            ? Colors.white.withOpacity(0.1)
+                            : null,
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withOpacity(0.25),
                         ),
                       ),
                       clipBehavior: Clip.antiAlias,
@@ -79,7 +118,16 @@ class CarDetails extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        gradient: isDarkMode
+                            ? const LinearGradient(
+                                colors: [Color(0xFF1C1C1C), Color(0xFF2C2C2C)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )
+                            : null,
+                        color: !isDarkMode
+                            ? Colors.white.withOpacity(0.15)
+                            : null,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: Colors.white.withOpacity(0.3),
@@ -96,13 +144,13 @@ class CarDetails extends StatelessWidget {
                                 text: "${carData['model'] ?? 'Unknown Model'}",
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: textColor,
                               ),
                               CustomText(
                                 text: "\$${carData['price'] ?? 0}",
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: textColor,
                               ),
                             ],
                           ),
@@ -113,7 +161,7 @@ class CarDetails extends StatelessWidget {
                             text: "${carData['brand'] ?? 'Brand'}",
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            color: mainColor,
                           ),
 
                           const SizedBox(height: 20),
@@ -126,28 +174,34 @@ class CarDetails extends StatelessWidget {
                                 icon: Icons.speed_rounded,
                                 label: "Engine",
                                 value: carData['engine'] ?? 'N/A',
+                                textColor: textColor,
+                                secondaryText: secondaryText,
                               ),
                               _infoTile(
                                 icon: Icons.flash_on_rounded,
                                 label: "Speed",
                                 value: "${carData['speed'] ?? 'N/A'} ",
+                                textColor: textColor,
+                                secondaryText: secondaryText,
                               ),
                               _infoTile(
                                 icon: Icons.event_seat_rounded,
                                 label: "Seats",
                                 value: "${carData['seats'] ?? 'N/A'}",
+                                textColor: textColor,
+                                secondaryText: secondaryText,
                               ),
                             ],
                           ),
 
                           const SizedBox(height: 20),
 
-                          /// 📝 وصف أو تفاصيل إضافية
+                          /// 📝 وصف إضافي
                           if (carData['description'] != null)
                             CustomText(
                               text: carData['description'],
                               fontSize: 15,
-                              color: Colors.white70,
+                              color: secondaryText,
                               fontWeight: FontWeight.w400,
                             ),
                         ],
@@ -156,17 +210,18 @@ class CarDetails extends StatelessWidget {
 
                     const SizedBox(height: 30),
 
-                    /// 🔘 زر “Book Now” باستخدام CustomButton
+                    /// 🔘 زر الحجز
                     Center(
                       child: CustomButton(
                         text: "Book Now",
                         fontSize: 17,
                         width: double.infinity,
+                        color: mainColor,
                         onTap: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("🚗 Booking confirmed!"),
-                              backgroundColor: Colors.blueAccent,
+                            SnackBar(
+                              content: const Text("🚗 Booking confirmed!"),
+                              backgroundColor: mainColor,
                               behavior: SnackBarBehavior.floating,
                             ),
                           );
@@ -183,21 +238,23 @@ class CarDetails extends StatelessWidget {
     );
   }
 
-  /// 🔧 Widget بسيط لعرض معلومة السيارة
+  /// 🔧 Widget لعرض معلومة السيارة
   Widget _infoTile({
     required IconData icon,
     required String label,
     required String value,
+    required Color textColor,
+    required Color secondaryText,
   }) {
     return Column(
       children: [
-        Icon(icon, color: Colors.white70, size: 24),
+        Icon(icon, color: secondaryText, size: 24),
         const SizedBox(height: 6),
-        CustomText(text: label, fontSize: 13, color: Colors.white70),
+        CustomText(text: label, fontSize: 13, color: secondaryText),
         CustomText(
           text: value,
           fontSize: 15,
-          color: Colors.white,
+          color: textColor,
           fontWeight: FontWeight.bold,
         ),
       ],

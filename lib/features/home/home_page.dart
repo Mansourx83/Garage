@@ -17,6 +17,8 @@ class _HomePageState extends State<HomePage> {
 
   String? selectedBrand;
   bool isLoading = true;
+  bool isDarkMode = false;
+
   List<Map<String, dynamic>> cars = [];
 
   final List<String> brands = [
@@ -60,24 +62,48 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: isDarkMode ? const Color(0xFF0D0D0D) : null,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          /// الخلفية + البلور
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/home.jpg'),
-                fit: BoxFit.cover,
+          /// 🖼️ الخلفية حسب الثيم
+          if (!isDarkMode)
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/home.jpg'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            )
+          else
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFF0D0D0D),
+                    Color(0xFF1C1C1C),
+                    Color(0xFF2E2E2E),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
             ),
-          ),
+
+          /// 💨 البلور أو الشادو
           BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-            child: Container(color: Colors.black.withOpacity(0.25)),
+            filter: ImageFilter.blur(
+              sigmaX: isDarkMode ? 3 : 6,
+              sigmaY: isDarkMode ? 3 : 6,
+            ),
+            child: Container(
+              color: isDarkMode
+                  ? Colors.black.withOpacity(0.2)
+                  : Colors.black.withOpacity(0.25),
+            ),
           ),
 
-          /// المحتوى
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -86,7 +112,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   const SizedBox(height: 10),
 
-                  /// Header
+                  /// 🔝 الـ Header
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -102,33 +128,64 @@ class _HomePageState extends State<HomePage> {
                         fontWeight: FontWeight.w500,
                         color: Colors.white70,
                       ),
-                      const Icon(
-                        CupertinoIcons.circle_grid_3x3,
-                        color: Colors.white,
+
+                      /// ✅ الأيقونتين (الثيم + الحساب)
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              isDarkMode
+                                  ? CupertinoIcons.sun_max_fill
+                                  : CupertinoIcons.moon_stars_fill,
+                              color: isDarkMode
+                                  ? Colors.redAccent
+                                  : Colors.blueAccent,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                isDarkMode = !isDarkMode;
+                              });
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              CupertinoIcons.person_crop_circle_fill,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              debugPrint("👤 Account icon pressed");
+                              // 🧩 هنا ممكن تفتح صفحة الحساب أو الإعدادات
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
 
                   const SizedBox(height: 20),
 
-                  /// Welcome
+                  /// 👋 الترحيب
                   Row(
-                    children: const [
+                    children: [
                       CustomText(
-                        text: "Hello, ",
-                        fontSize: 32,
+                        text: isDarkMode ? "Welcome back, " : "Hello, ",
+                        fontSize: 30,
                         color: Colors.white70,
                       ),
                       CustomText(
                         text: "Mansour",
-                        fontSize: 32,
-                        color: Colors.blueAccent,
+                        fontSize: 30,
+                        color: isDarkMode
+                            ? Colors.redAccent
+                            : Colors.blueAccent,
                         fontWeight: FontWeight.bold,
                       ),
                     ],
                   ),
-                  const CustomText(
-                    text: "Choose your Ideal Car",
+                  CustomText(
+                    text: isDarkMode
+                        ? "Choose your next ride 🔥"
+                        : "Choose your Ideal Car",
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                     color: Colors.white70,
@@ -136,7 +193,7 @@ class _HomePageState extends State<HomePage> {
 
                   const SizedBox(height: 20),
 
-                  /// Brands Filter
+                  /// 🚘 الفلاتر
                   SizedBox(
                     height: 46,
                     child: ListView.separated(
@@ -160,35 +217,53 @@ class _HomePageState extends State<HomePage> {
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: isSelected
-                                  ? Colors.white.withOpacity(0.95)
-                                  : Colors.white.withOpacity(0.12),
+                              gradient: isDarkMode && isSelected
+                                  ? const LinearGradient(
+                                      colors: [
+                                        Color(0xFFFF0000),
+                                        Color(0xFFB71C1C),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    )
+                                  : null,
+                              color: !isDarkMode
+                                  ? (isSelected
+                                        ? Colors.white.withOpacity(0.95)
+                                        : Colors.white.withOpacity(0.12))
+                                  : (isSelected
+                                        ? Colors.redAccent.withOpacity(0.15)
+                                        : Colors.white.withOpacity(0.1)),
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(
                                 color: isSelected
-                                    ? Colors.blueAccent
-                                    : Colors.white.withOpacity(0.18),
-                                width: isSelected ? 1.5 : 1.0,
+                                    ? (isDarkMode
+                                          ? Colors.redAccent
+                                          : Colors.blueAccent)
+                                    : Colors.white24,
                               ),
                             ),
                             child: Row(
                               children: [
                                 CustomText(
-                                  text: brand,
+                                  text: "$brand ",
                                   fontSize: 14,
                                   fontWeight: isSelected
                                       ? FontWeight.bold
                                       : FontWeight.w500,
                                   color: isSelected
-                                      ? Colors.black
-                                      : Colors.white,
+                                      ? isDarkMode
+                                            ? Colors.white
+                                            : Colors.black
+                                      : Colors.white70,
                                 ),
-                                if (isSelected) const SizedBox(width: 6),
                                 if (isSelected)
-                                  const Icon(
+                                  Icon(
                                     Icons.check_circle,
                                     size: 16,
-                                    color: Colors.blueAccent,
+                                    color: isDarkMode
+                                        ? Colors.redAccent
+                                        : Colors.blueAccent,
                                   ),
                               ],
                             ),
@@ -200,147 +275,146 @@ class _HomePageState extends State<HomePage> {
 
                   const SizedBox(height: 20),
 
-                  /// Cars Grid
+                  /// 🚗 Grid
                   Expanded(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 400),
-                      child: isLoading
-                          ? const Center(
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            )
-                          : cars.isEmpty
-                          ? const Center(
-                              child: CustomText(
-                                text: "No cars found 🚗",
-                                color: Colors.white,
-                              ),
-                            )
-                          : GridView.builder(
-                              physics: const BouncingScrollPhysics(),
-                              padding: const EdgeInsets.all(10),
-                              itemCount: cars.length,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    crossAxisSpacing: 8,
-                                    mainAxisSpacing: 8,
-                                    childAspectRatio: 1 / 1.1,
-                                  ),
-                              itemBuilder: (context, index) {
-                                final car = cars[index];
-                                return GestureDetector(
-                                  onTap: () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => CarDetails(carData: car),
+                    child: isLoading
+                        ? Center(
+                            child: CircularProgressIndicator(
+                              color: isDarkMode
+                                  ? Colors.redAccent
+                                  : Colors.blueAccent,
+                            ),
+                          )
+                        : cars.isEmpty
+                        ? const Center(
+                            child: CustomText(
+                              text: "No cars found 🚗",
+                              color: Colors.white,
+                            ),
+                          )
+                        : GridView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            padding: const EdgeInsets.all(10),
+                            itemCount: cars.length,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 8,
+                                  mainAxisSpacing: 8,
+                                  childAspectRatio: 1 / 1.1,
+                                ),
+                            itemBuilder: (context, index) {
+                              final car = cars[index];
+                              return GestureDetector(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => CarDetails(
+                                      carData: car,
+                                      isDarkMode: isDarkMode,
                                     ),
                                   ),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Colors.white.withOpacity(0.15),
-                                          Colors.white.withOpacity(0.05),
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
+                                ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    gradient: LinearGradient(
+                                      colors: isDarkMode
+                                          ? [
+                                              const Color(0xFF1C1C1C),
+                                              const Color(0xFF2C2C2C),
+                                            ]
+                                          : [
+                                              Colors.white.withOpacity(0.15),
+                                              Colors.white.withOpacity(0.05),
+                                            ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    border: Border.all(
+                                      color: Colors.white.withOpacity(0.3),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color:
+                                            (isDarkMode
+                                                    ? Colors.redAccent
+                                                    : Colors.black)
+                                                .withOpacity(0.3),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 4),
                                       ),
-                                      border: Border.all(
-                                        color: Colors.white.withOpacity(0.3),
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.25),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 4),
+                                    ],
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              const BorderRadius.vertical(
+                                                top: Radius.circular(16),
+                                              ),
+                                          child: Image.network(
+                                            car['image_url'] ?? '',
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                          ),
                                         ),
-                                      ],
-                                    ),
-                                    child: Stack(
-                                      children: [
-                                        Column(
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Expanded(
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    const BorderRadius.vertical(
-                                                      top: Radius.circular(16),
-                                                    ),
-                                                child: Image.network(
-                                                  car['image_url'] ?? '',
-                                                  fit: BoxFit.cover,
-                                                  width: double.infinity,
-                                                ),
-                                              ),
+                                            CustomText(
+                                              text: car['model'] ?? '',
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
                                             ),
-                                            Padding(
-                                              padding: const EdgeInsets.all(
-                                                8.0,
-                                              ),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  CustomText(
-                                                    text: car['model'] ?? '',
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Colors.white
-                                                        .withOpacity(0.95),
-                                                    shadows: [
-                                                      Shadow(
-                                                        blurRadius: 3,
-                                                        color: Colors.black
-                                                            .withOpacity(0.4),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  CustomText(
-                                                    text: car['brand'] ?? '',
-                                                    fontSize: 15,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.blueAccent,
-                                                  ),
-                                                  const SizedBox(height: 4),
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      CustomText(
-                                                        text:
-                                                            "\$${car['price'] ?? 0}",
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.white,
-                                                      ),
-                                                      const Icon(
-                                                        Icons
-                                                            .arrow_circle_right_rounded,
-                                                        color:
-                                                            Colors.blueAccent,
-                                                        size: 22,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
+                                            CustomText(
+                                              text: car['brand'] ?? '',
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                              color: isDarkMode
+                                                  ? Colors.redAccent
+                                                  : Colors.blueAccent,
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                CustomText(
+                                                  text:
+                                                      "\$${car['price'] ?? 0}",
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                                Icon(
+                                                  Icons
+                                                      .arrow_circle_right_rounded,
+                                                  color: isDarkMode
+                                                      ? Colors.redAccent
+                                                      : Colors.blueAccent,
+                                                  size: 22,
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                );
-                              },
-                            ),
-                    ),
+                                ),
+                              );
+                            },
+                          ),
                   ),
                 ],
               ),
