@@ -38,60 +38,57 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   Future<void> createAccount() async {
-    final supabase = Supabase.instance.client;
-    final name = nameController.text.trim();
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
+  final supabase = Supabase.instance.client;
+  final name = nameController.text.trim();
+  final email = emailController.text.trim();
+  final password = passwordController.text.trim();
 
-    /// ✅ تحقق من الحقول
-    if (name.isEmpty) {
-      showCustomSnackBar(context, 'Please enter your name', isError: true);
-      return;
-    }
-
-    if (email.isEmpty || !isValidEmail(email)) {
-      showCustomSnackBar(context, 'Please enter a valid email', isError: true);
-      return;
-    }
-
-    if (password.isEmpty || !isStrongPassword(password)) {
-      showCustomSnackBar(
-        context,
-        'Password must be at least 8 characters, include a number and a capital letter',
-        isError: true,
-      );
-      return;
-    }
-
-    setState(() => isLoading = true);
-
-    try {
-      /// إنشاء المستخدم في Supabase مع الصورة الافتراضية
-      final response = await supabase.auth.signUp(
-        email: email,
-        password: password,
-        data: {'name': name, 'avatar_url': defaultAvatarUrl},
-      );
-
-      if (response.user != null) {
-        showCustomSnackBar(context, 'Account created successfully!');
-
-        /// ✅ الانتقال للصفحة الرئيسية
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
-      }
-    } on AuthException catch (e) {
-      showCustomSnackBar(context, e.message, isError: true);
-    } catch (e) {
-      showCustomSnackBar(context, 'Something went wrong', isError: true);
-    } finally {
-      setState(() => isLoading = false);
-    }
+  if (name.isEmpty || email.isEmpty || password.isEmpty) {
+    showCustomSnackBar(context, 'Please fill all fields', isError: true);
+    return;
   }
 
-  @override
+  final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+  if (!emailRegex.hasMatch(email)) {
+    showCustomSnackBar(context, 'Invalid email address', isError: true);
+    return;
+  }
+
+  if (password.length < 8) {
+    showCustomSnackBar(context, 'Password must be at least 8 characters', isError: true);
+    return;
+  }
+
+  setState(() => isLoading = true);
+
+  try {
+    final response = await supabase.auth.signUp(
+      email: email,
+      password: password,
+      data: {'name': name, 'avatar_url': defaultAvatarUrl},
+      emailRedirectTo: 'https://your-app-url.com/verify', // رابط التفعيل (ممكن أي URL)
+    );
+
+    if (response.user != null) {
+      showCustomSnackBar(
+        context,
+        'Account created! Please check your email to verify your account.',
+      );
+
+      // ✅ بعد الإنشاء نرجعه إلى صفحة تسجيل الدخول
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    }
+  } on AuthException catch (e) {
+    showCustomSnackBar(context, e.message, isError: true);
+  } catch (e) {
+    showCustomSnackBar(context, 'Something went wrong', isError: true);
+  } finally {
+    setState(() => isLoading = false);
+  }
+}  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(

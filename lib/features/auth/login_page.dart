@@ -2,8 +2,11 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:garage/core/components/custom_button.dart';
+import 'package:garage/core/components/custom_snackbar.dart';
 import 'package:garage/core/components/custom_text_field.dart';
 import 'package:garage/features/auth/auth_page.dart';
+import 'package:garage/features/home/home_page.dart'; // صفحة الهوم (هتحتاج تعملها)
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,6 +18,64 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  bool isLoading = false;
+
+  Future<void> loginUser() async {
+    final supabase = Supabase.instance.client;
+    final email = emailController.text.trim().toLowerCase();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      showCustomSnackBar(context, 'Please fill all fields', isError: true);
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      final response = await supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+
+      final user = response.user;
+
+      // ✅ التحقق من حالة التفعيل
+      if (user != null && user.emailConfirmedAt == null) {
+        showCustomSnackBar(
+          context,
+          'Your email is not confirmed. We sent you a new verification email.',
+          isError: true,
+        );
+
+        setState(() => isLoading = false);
+        return;
+      }
+
+      if (response.session != null) {
+        showCustomSnackBar(context, 'Login successful!');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      }
+    } on AuthException catch (e) {
+      if (e.message.toLowerCase().contains('invalid login credentials')) {
+        showCustomSnackBar(
+          context,
+          'Email or password is incorrect.',
+          isError: true,
+        );
+      } else {
+        showCustomSnackBar(context, e.message, isError: true);
+      }
+    } catch (e) {
+      showCustomSnackBar(context, 'Something went wrong', isError: true);
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,10 +149,9 @@ class _LoginPageState extends State<LoginPage> {
 
                         /// زر تسجيل الدخول
                         CustomButton(
-                          text: 'Login',
+                          text: isLoading ? 'Logging in...' : 'Login',
                           fontSize: 16,
-                          onTap: () {
-                          },
+                          onTap: isLoading ? null : loginUser,
                         ),
 
                         const SizedBox(height: 8),
@@ -101,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => AuthPage(),
+                                builder: (context) => const AuthPage(),
                               ),
                             );
                           },
