@@ -5,11 +5,13 @@ void showCustomSnackBar(
   BuildContext context,
   String message, {
   bool isError = false,
+  Duration duration = const Duration(seconds: 3),
 }) {
   final snackBar = SnackBar(
     backgroundColor: Colors.transparent,
     elevation: 0,
     behavior: SnackBarBehavior.floating,
+    duration: duration,
     content: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -42,7 +44,6 @@ void showCustomSnackBar(
         ],
       ),
     ),
-    duration: const Duration(seconds: 3),
   );
 
   ScaffoldMessenger.of(context)

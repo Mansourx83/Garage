@@ -4,7 +4,6 @@ import 'package:garage/core/components/custom_button.dart';
 import 'package:garage/core/components/custom_snackbar.dart';
 import 'package:garage/core/components/custom_text_field.dart';
 import 'package:garage/features/auth/login_page.dart';
-import 'package:garage/features/home/home_page.dart'; // ✅ تأكد إن عندك صفحة HomePage
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthPage extends StatefulWidget {
@@ -24,77 +23,103 @@ class _AuthPageState extends State<AuthPage> {
   final String defaultAvatarUrl =
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrxWd_qyeMG-05UoSEmiNlEcKzWnIpoXdl_A&s";
 
-  /// ✅ التحقق من صحة الإيميل
   bool isValidEmail(String email) {
     final regex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     return regex.hasMatch(email);
   }
 
-  /// ✅ التحقق من قوة الباسورد
   bool isStrongPassword(String password) {
-    return password.length >= 8 &&
+    return password.length >= 10 &&
         RegExp(r'[A-Z]').hasMatch(password) &&
         RegExp(r'[0-9]').hasMatch(password);
   }
 
   Future<void> createAccount() async {
-  final supabase = Supabase.instance.client;
-  final name = nameController.text.trim();
-  final email = emailController.text.trim();
-  final password = passwordController.text.trim();
+    final supabase = Supabase.instance.client;
+    final name = nameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
 
-  if (name.isEmpty || email.isEmpty || password.isEmpty) {
-    showCustomSnackBar(context, 'Please fill all fields', isError: true);
-    return;
-  }
+    // التحقق من الحقول
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      showCustomSnackBar(context, 'Please fill all fields', isError: true);
+      return;
+    }
 
-  final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-  if (!emailRegex.hasMatch(email)) {
-    showCustomSnackBar(context, 'Invalid email address', isError: true);
-    return;
-  }
+    if (!isValidEmail(email)) {
+      showCustomSnackBar(context, 'Invalid email address', isError: true);
+      return;
+    }
 
-  if (password.length < 8) {
-    showCustomSnackBar(context, 'Password must be at least 8 characters', isError: true);
-    return;
-  }
-
-  setState(() => isLoading = true);
-
-  try {
-    final response = await supabase.auth.signUp(
-      email: email,
-      password: password,
-      data: {'name': name, 'avatar_url': defaultAvatarUrl},
-      emailRedirectTo: 'https://your-app-url.com/verify', // رابط التفعيل (ممكن أي URL)
-    );
-
-    if (response.user != null) {
+    if (!isStrongPassword(password)) {
       showCustomSnackBar(
         context,
-        'Account created! Please check your email to verify your account.',
+        'Password must be at least 10 characters, include a number & uppercase letter.',
+        isError: true,
+      );
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      // 🟢 إنشاء الحساب فقط - الـ Trigger هيعمل الباقي!
+      final response = await supabase.auth.signUp(
+        email: email,
+        password: password,
+        data: {
+          'name': name,
+          'avatar_url': defaultAvatarUrl,
+          'address': 'Egypt',
+        },
       );
 
-      // ✅ بعد الإنشاء نرجعه إلى صفحة تسجيل الدخول
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
+      final user = response.user;
+
+      if (user != null) {
+        // ✅ الـ Trigger عمل INSERT تلقائي في جدول users
+        showCustomSnackBar(
+          context,
+          '✅ Account created! Please check your email to verify.',
+          duration: const Duration(seconds: 5),
+        );
+
+        await Future.delayed(const Duration(seconds: 5));
+
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+          );
+        }
+      } else {
+        showCustomSnackBar(
+          context,
+          'Failed to create account. Please try again.',
+          isError: true,
+        );
+      }
+    } on AuthException catch (e) {
+      debugPrint('❌ AuthException: ${e.message}');
+      showCustomSnackBar(context, e.message, isError: true);
+    } catch (e, stack) {
+      debugPrint('❌ Error: $e');
+      debugPrint(stack.toString());
+      showCustomSnackBar(context, 'Error: $e', isError: true);
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
-  } on AuthException catch (e) {
-    showCustomSnackBar(context, e.message, isError: true);
-  } catch (e) {
-    showCustomSnackBar(context, 'Something went wrong', isError: true);
-  } finally {
-    setState(() => isLoading = false);
   }
-}  @override
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
-          /// الخلفية
+          /// 🖼️ الخلفية (صورة عربية)
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -104,13 +129,13 @@ class _AuthPageState extends State<AuthPage> {
             ),
           ),
 
-          /// تأثير Blur على الخلفية
+          /// 🌫️ تأثير Blur على الخلفية
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
             child: Container(color: Colors.black.withOpacity(0.25)),
           ),
 
-          /// الفورم الزجاجي
+          /// 🧊 الفورم الزجاجي (Liquid Glass)
           Center(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
@@ -139,7 +164,7 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                         const SizedBox(height: 24),
 
-                        /// حقل الاسم
+                        /// 🧍‍♂️ حقل الاسم
                         CustomTextField(
                           controller: nameController,
                           hint: 'Name',
@@ -148,7 +173,7 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        /// حقل البريد الإلكتروني
+                        /// ✉️ البريد الإلكتروني
                         CustomTextField(
                           controller: emailController,
                           hint: 'Email',
@@ -157,7 +182,7 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        /// حقل كلمة المرور (مخفي)
+                        /// 🔒 كلمة المرور
                         CustomTextField(
                           controller: passwordController,
                           hint: 'Password',
@@ -167,7 +192,7 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                         const SizedBox(height: 24),
 
-                        /// زر التسجيل
+                        /// 🚀 زر التسجيل
                         CustomButton(
                           text: isLoading ? 'Creating...' : 'Create Account',
                           fontSize: 16,
@@ -175,7 +200,7 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                         const SizedBox(height: 12),
 
-                        /// رابط تسجيل الدخول
+                        /// 🔁 رابط تسجيل الدخول
                         GestureDetector(
                           onTap: () {
                             Navigator.pushReplacement(

@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:garage/core/constants/constants.dart';
-import 'package:garage/features/admin/admin_page.dart';
+import 'package:garage/features/auth/auth_page.dart';
+import 'package:garage/features/auth/login_page.dart';
 import 'package:garage/features/home/home_page.dart';
+import 'package:garage/features/admin/admin_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'features/auth/auth_page.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
-  _initSupabase();
-}
 
-Future<void> _initSupabase() async {
   await Supabase.initialize(url: apiUrl, anonKey: anonKey);
   debugPrint("Supabase initialized ✅");
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -21,10 +20,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final supabase = Supabase.instance.client;
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // home: FirebaseAuth.instance.currentUser == null ? AuthPage() : HomePage(),
       home: AuthPage(),
+      // home: supabase.auth.currentSession == null
+      //     ? const LoginPage()
+      //     : const HomePage(),
     );
   }
 }

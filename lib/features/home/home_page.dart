@@ -135,8 +135,8 @@ class _HomePageState extends State<HomePage> {
                           IconButton(
                             icon: Icon(
                               isDarkMode
-                                  ? CupertinoIcons.sun_max_fill
-                                  : CupertinoIcons.moon_stars_fill,
+                                  ? CupertinoIcons.moon_stars_fill
+                                  : CupertinoIcons.sun_max_fill,
                               color: isDarkMode
                                   ? Colors.redAccent
                                   : Colors.blueAccent,
@@ -152,10 +152,7 @@ class _HomePageState extends State<HomePage> {
                               CupertinoIcons.person_crop_circle_fill,
                               color: Colors.white,
                             ),
-                            onPressed: () {
-                              debugPrint("👤 Account icon pressed");
-                              // 🧩 هنا ممكن تفتح صفحة الحساب أو الإعدادات
-                            },
+                            onPressed: () {},
                           ),
                         ],
                       ),
