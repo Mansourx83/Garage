@@ -1,24 +1,103 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-
 import 'package:garage/core/components/custom_button.dart';
+import 'package:garage/core/components/custom_snackbar.dart';
 import 'package:garage/core/components/custom_text_field.dart';
 import 'package:garage/features/auth/login_page.dart';
+import 'package:garage/features/home/home_page.dart'; // ✅ تأكد إن عندك صفحة HomePage
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class AuthPage extends StatelessWidget {
+class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
+  State<AuthPage> createState() => _AuthPageState();
+}
 
+class _AuthPageState extends State<AuthPage> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  bool isLoading = false;
+
+  final String defaultAvatarUrl =
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrxWd_qyeMG-05UoSEmiNlEcKzWnIpoXdl_A&s";
+
+  /// ✅ التحقق من صحة الإيميل
+  bool isValidEmail(String email) {
+    final regex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return regex.hasMatch(email);
+  }
+
+  /// ✅ التحقق من قوة الباسورد
+  bool isStrongPassword(String password) {
+    return password.length >= 8 &&
+        RegExp(r'[A-Z]').hasMatch(password) &&
+        RegExp(r'[0-9]').hasMatch(password);
+  }
+
+  Future<void> createAccount() async {
+    final supabase = Supabase.instance.client;
+    final name = nameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    /// ✅ تحقق من الحقول
+    if (name.isEmpty) {
+      showCustomSnackBar(context, 'Please enter your name', isError: true);
+      return;
+    }
+
+    if (email.isEmpty || !isValidEmail(email)) {
+      showCustomSnackBar(context, 'Please enter a valid email', isError: true);
+      return;
+    }
+
+    if (password.isEmpty || !isStrongPassword(password)) {
+      showCustomSnackBar(
+        context,
+        'Password must be at least 8 characters, include a number and a capital letter',
+        isError: true,
+      );
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      /// إنشاء المستخدم في Supabase مع الصورة الافتراضية
+      final response = await supabase.auth.signUp(
+        email: email,
+        password: password,
+        data: {'name': name, 'avatar_url': defaultAvatarUrl},
+      );
+
+      if (response.user != null) {
+        showCustomSnackBar(context, 'Account created successfully!');
+
+        /// ✅ الانتقال للصفحة الرئيسية
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      }
+    } on AuthException catch (e) {
+      showCustomSnackBar(context, e.message, isError: true);
+    } catch (e) {
+      showCustomSnackBar(context, 'Something went wrong', isError: true);
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
-          /// خلفية
+          /// الخلفية
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -81,7 +160,7 @@ class AuthPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
 
-                        /// حقل كلمة المرور
+                        /// حقل كلمة المرور (مخفي)
                         CustomTextField(
                           controller: passwordController,
                           hint: 'Password',
@@ -93,11 +172,10 @@ class AuthPage extends StatelessWidget {
 
                         /// زر التسجيل
                         CustomButton(
-                          text: 'Create Account',
+                          text: isLoading ? 'Creating...' : 'Create Account',
                           fontSize: 16,
-                          onTap: () {},
+                          onTap: isLoading ? null : createAccount,
                         ),
-
                         const SizedBox(height: 12),
 
                         /// رابط تسجيل الدخول
@@ -106,7 +184,7 @@ class AuthPage extends StatelessWidget {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => LoginPage(),
+                                builder: (context) => const LoginPage(),
                               ),
                             );
                           },

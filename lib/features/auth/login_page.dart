@@ -91,13 +91,11 @@ class _LoginPageState extends State<LoginPage> {
                           text: 'Login',
                           fontSize: 16,
                           onTap: () {
-                            // TODO: تنفيذ عملية تسجيل الدخول هنا
                           },
                         ),
 
                         const SizedBox(height: 8),
 
-                        /// رابط إنشاء حساب جديد
                         GestureDetector(
                           onTap: () {
                             Navigator.pushReplacement(
