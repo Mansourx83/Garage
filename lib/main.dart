@@ -8,14 +8,13 @@ import 'features/auth/auth_page.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
-  _initSupabase(); 
+  _initSupabase();
 }
 
 Future<void> _initSupabase() async {
   await Supabase.initialize(url: apiUrl, anonKey: anonKey);
   debugPrint("Supabase initialized ✅");
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -25,7 +24,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       // home: FirebaseAuth.instance.currentUser == null ? AuthPage() : HomePage(),
-      home: HomePage(),
+      home: AuthPage(),
     );
   }
 }

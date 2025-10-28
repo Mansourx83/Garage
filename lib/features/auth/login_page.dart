@@ -1,24 +1,28 @@
-import 'package:flutter/material.dart';
 import 'dart:ui';
-
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:garage/core/components/custom_button.dart';
 import 'package:garage/core/components/custom_text_field.dart';
-import 'package:garage/features/auth/login_page.dart';
+import 'package:garage/features/auth/auth_page.dart';
 
-class AuthPage extends StatelessWidget {
-  const AuthPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
-
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
-          /// خلفية
+          /// الخلفية
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -54,7 +58,7 @@ class AuthPage extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text(
-                          "Sign Up",
+                          "Login",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 28,
@@ -62,15 +66,6 @@ class AuthPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 24),
-
-                        /// حقل الاسم
-                        CustomTextField(
-                          controller: nameController,
-                          hint: 'Name',
-                          type: TextInputType.text,
-                          icon: Icons.person,
-                        ),
-                        const SizedBox(height: 16),
 
                         /// حقل البريد الإلكتروني
                         CustomTextField(
@@ -91,27 +86,29 @@ class AuthPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 24),
 
-                        /// زر التسجيل
+                        /// زر تسجيل الدخول
                         CustomButton(
-                          text: 'Create Account',
+                          text: 'Login',
                           fontSize: 16,
-                          onTap: () {},
+                          onTap: () {
+                            // TODO: تنفيذ عملية تسجيل الدخول هنا
+                          },
                         ),
 
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
 
-                        /// رابط تسجيل الدخول
+                        /// رابط إنشاء حساب جديد
                         GestureDetector(
                           onTap: () {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => LoginPage(),
+                                builder: (context) => AuthPage(),
                               ),
                             );
                           },
                           child: const Text(
-                            "Already have an account? Login",
+                            "Don't have an account? Sign Up",
                             style: TextStyle(
                               color: Colors.white70,
                               fontSize: 14,
