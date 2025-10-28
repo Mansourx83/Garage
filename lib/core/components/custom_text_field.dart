@@ -13,6 +13,7 @@ class CustomTextField extends StatelessWidget {
     this.maxLength,
     this.suffixText,
     this.validator,
+    this.enable,
   });
 
   final TextEditingController controller;
@@ -22,7 +23,8 @@ class CustomTextField extends StatelessWidget {
   final IconData? icon;
   final bool? obscure;
   final int? maxLength;
-  final String? Function(String?)? validator; // ✅ دالة التحقق
+  final String? Function(String?)? validator;
+  final bool? enable;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +43,7 @@ class CustomTextField extends StatelessWidget {
             controller: controller,
             keyboardType: type,
             obscureText: obscure ?? false,
+            enabled: enable,
             maxLength: maxLength,
             validator:
                 validator ??

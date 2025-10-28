@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:garage/features/account/account_page.dart';
 import 'package:garage/features/home/car_details.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:garage/core/components/custom_text.dart';
@@ -21,6 +22,11 @@ class _HomePageState extends State<HomePage> {
 
   List<Map<String, dynamic>> cars = [];
 
+  // 🟢 بيانات المستخدم
+  String userName = '';
+  String userAddress = '';
+  String userAvatarUrl = '';
+
   final List<String> brands = [
     'All',
     'Bmw',
@@ -36,9 +42,35 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     selectedBrand = 'All';
+    fetchUserData();
     fetchCars(brand: 'All');
   }
 
+  // 🟢 دالة جلب بيانات المستخدم
+  Future<void> fetchUserData() async {
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) return;
+
+      // ✅ جلب بيانات المستخدم الحالي من Supabase
+      final response = await supabase
+          .from('users')
+          .select('name, address, avatar_url')
+          .eq('id', user.id)
+          .single();
+
+      // ✅ بما إنك ضامن إن مفيش حاجة null، نحدث القيم مباشرة
+      setState(() {
+        userName = response['name'];
+        userAddress = response['address'];
+        userAvatarUrl = response['avatar_url'];
+      });
+    } catch (e) {
+      debugPrint('❌ Error fetching user data: $e');
+    }
+  }
+
+  // 🟢 دالة جلب العربيات
   Future<void> fetchCars({String? brand}) async {
     setState(() => isLoading = true);
     try {
@@ -116,14 +148,14 @@ class _HomePageState extends State<HomePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const CircleAvatar(
+                      // 🟢 صورة المستخدم من Database
+                      CircleAvatar(
                         radius: 20,
-                        backgroundImage: NetworkImage(
-                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrxWd_qyeMG-05UoSEmiNlEcKzWnIpoXdl_A&s",
-                        ),
+                        backgroundImage: NetworkImage(userAvatarUrl),
                       ),
-                      const CustomText(
-                        text: "Egypt , Banha",
+                      // 🟢 عنوان المستخدم من Database
+                      CustomText(
+                        text: userAddress,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: Colors.white70,
@@ -152,7 +184,19 @@ class _HomePageState extends State<HomePage> {
                               CupertinoIcons.person_crop_circle_fill,
                               color: Colors.white,
                             ),
-                            onPressed: () {},
+                            onPressed: () async {
+                              // 👇 انتظر لما المستخدم يرجع من صفحة الـ Account
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      AccountPage(isDarkMode: isDarkMode),
+                                ),
+                              );
+
+                              // 👇 بعد الرجوع، أعد تحميل بيانات المستخدم
+                              fetchUserData();
+                            },
                           ),
                         ],
                       ),
@@ -169,8 +213,9 @@ class _HomePageState extends State<HomePage> {
                         fontSize: 30,
                         color: Colors.white70,
                       ),
+                      // 🟢 اسم المستخدم من Database
                       CustomText(
-                        text: "Mansour",
+                        text: userName,
                         fontSize: 30,
                         color: isDarkMode
                             ? Colors.redAccent
