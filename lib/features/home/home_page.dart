@@ -142,7 +142,7 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 14),
 
                   /// 🔝 الـ Header
                   Row(
@@ -150,7 +150,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       // 🟢 صورة المستخدم من Database
                       CircleAvatar(
-                        radius: 20,
+                        radius: 30,
                         backgroundImage: NetworkImage(userAvatarUrl),
                       ),
                       // 🟢 عنوان المستخدم من Database

@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:garage/core/components/custom_text.dart';
 import 'package:garage/core/components/custom_button.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CarDetails extends StatelessWidget {
   const CarDetails({
@@ -217,14 +219,63 @@ class CarDetails extends StatelessWidget {
                         fontSize: 17,
                         width: double.infinity,
                         color: mainColor,
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text("🚗 Booking confirmed!"),
-                              backgroundColor: mainColor,
-                              behavior: SnackBarBehavior.floating,
-                            ),
+                        onTap: () async {
+                          final carName =
+                              carData['name'] ??
+                              carData['model'] ??
+                              'Unknown Car';
+                          final carPrice =
+                              carData['price']?.toString() ?? 'N/A';
+                          final user =
+                              Supabase.instance.client.auth.currentUser;
+
+                          final userName =
+                              user?.userMetadata?['name'] ?? 'Unknown';
+                          final userEmail = user?.email ?? 'No email';
+
+                          // ✅ رقم صاحب التطبيق بصيغة دولية بدون "+" في البداية
+                          const ownerPhone =
+                              "201158465425"; // مصر: +20 = 20 (بعدين رقم الموبايل بدون 0)
+
+                          // 📝 الرسالة اللي هتتبعت
+                          final message = Uri.encodeComponent(
+                            "🚗 *New Car Booking!*\n\n"
+                            "👤 Name: $userName\n"
+                            "📧 Email: $userEmail\n\n"
+                            "🚘 Car: $carName\n"
+                            "💰 Price: $carPrice\n\n"
+                            "Please confirm the booking.",
                           );
+
+                          // ✅ استخدم رابط wa.me بدل whatsapp://send (أكثر توافقًا مع Android 11+)
+                          final whatsappUrl = Uri.parse(
+                            "https://wa.me/$ownerPhone?text=$message",
+                          );
+
+                          try {
+                            if (await canLaunchUrl(whatsappUrl)) {
+                              await launchUrl(
+                                whatsappUrl,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "⚠️ Please install WhatsApp to send the message.",
+                                  ),
+                                  backgroundColor: Colors.orangeAccent,
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("❌ Error sending message: $e"),
+                                backgroundColor: Colors.redAccent,
+                              ),
+                            );
+                          }
                         },
                       ),
                     ),
