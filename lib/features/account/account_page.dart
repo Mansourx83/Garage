@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:garage/core/components/custom_button.dart';
 import 'package:garage/core/components/custom_text_field.dart';
 import 'package:garage/core/components/custom_snackbar.dart';
+import 'package:garage/features/auth/login_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key, this.isDarkMode = false});
   final bool isDarkMode;
+
   @override
   State<AccountPage> createState() => _AccountPageState();
 }
@@ -69,7 +71,6 @@ class _AccountPageState extends State<AccountPage> {
       final userId = Supabase.instance.client.auth.currentUser!.id;
       final fileName = '${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-      // 🟢 رفع الصورة في bucket avatars
       await Supabase.instance.client.storage
           .from('avatars')
           .upload(
@@ -78,7 +79,6 @@ class _AccountPageState extends State<AccountPage> {
             fileOptions: const FileOptions(upsert: true),
           );
 
-      // 🟢 الحصول على رابط الصورة العام
       final publicUrl = Supabase.instance.client.storage
           .from('avatars')
           .getPublicUrl('users/$userId/$fileName');
@@ -114,7 +114,7 @@ class _AccountPageState extends State<AccountPage> {
 
       showCustomSnackBar(
         context,
-        ' Changes saved successfully!',
+        '✅ Changes saved successfully!',
         isError: false,
       );
     } catch (e) {
@@ -124,13 +124,25 @@ class _AccountPageState extends State<AccountPage> {
     }
   }
 
+  // 🚪 تسجيل الخروج
+  Future<void> logout() async {
+    await supabase.auth.signOut();
+    if (!mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+      (route) => false, // ← دي مهمة علشان تمسح كل الصفحات القديمة
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final Color mainColor = widget.isDarkMode
         ? Colors.redAccent
         : Colors.blueAccent;
     final Color textColor = Colors.white;
-    final Color secondaryText = Colors.white70;
+
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -149,7 +161,7 @@ class _AccountPageState extends State<AccountPage> {
                     )
                   : null,
               image: !widget.isDarkMode
-                  ? DecorationImage(
+                  ? const DecorationImage(
                       image: AssetImage('assets/home.jpg'),
                       fit: BoxFit.cover,
                     )
@@ -167,14 +179,12 @@ class _AccountPageState extends State<AccountPage> {
                   : Colors.black.withOpacity(0.25),
             ),
           ),
-
           if (isLoading)
             Center(child: CircularProgressIndicator(color: mainColor))
           else
             SafeArea(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -190,8 +200,7 @@ class _AccountPageState extends State<AccountPage> {
                           onPressed: () => Navigator.pop(context),
                         ),
                       ),
-                      SizedBox(height: 10),
-                      // 🖼️ الصورة الشخصية
+                      const SizedBox(height: 10),
                       GestureDetector(
                         onTap: pickImage,
                         child: Stack(
@@ -219,43 +228,39 @@ class _AccountPageState extends State<AccountPage> {
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 25),
-
-                      // 🧑 الاسم
                       CustomTextField(
                         controller: nameController,
                         hint: "Name",
                         type: TextInputType.name,
                       ),
-
                       const SizedBox(height: 16),
-
-                      // 📍 العنوان
                       CustomTextField(
                         controller: addressController,
                         hint: "Address",
                         type: TextInputType.streetAddress,
                       ),
-
                       const SizedBox(height: 16),
-
-                      // 📧 الإيميل (عرض فقط)
                       CustomTextField(
                         controller: TextEditingController(text: email ?? ''),
                         hint: "Email (read-only)",
                         enable: false,
                         type: TextInputType.emailAddress,
                       ),
-
                       const SizedBox(height: 30),
-
-                      // 🔘 زر الحفظ
                       CustomButton(
                         color: mainColor,
                         fontSize: 16,
                         text: isSaving ? 'Saving...' : 'Save Changes',
                         onTap: isSaving ? null : saveChanges,
+                      ),
+                      const SizedBox(height: 20),
+                      // 🚪 زر الخروج
+                      CustomButton(
+                        color: mainColor,
+                        fontSize: 16,
+                        text: 'Logout',
+                        onTap: logout,
                       ),
                     ],
                   ),
