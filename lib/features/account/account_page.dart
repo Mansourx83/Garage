@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:garage/core/components/custom_button.dart';
 import 'package:garage/core/components/custom_text_field.dart';
@@ -125,99 +126,140 @@ class _AccountPageState extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
+    final Color mainColor = widget.isDarkMode
+        ? Colors.redAccent
+        : Colors.blueAccent;
+    final Color textColor = Colors.white;
+    final Color secondaryText = Colors.white70;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text("My Account", style: TextStyle(color: Colors.white)),
-      ),
-      extendBodyBehindAppBar: true,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset('assets/home.jpg', fit: BoxFit.cover),
-          Container(color: Colors.black.withOpacity(0.6)),
+          Container(
+            decoration: BoxDecoration(
+              gradient: widget.isDarkMode
+                  ? const LinearGradient(
+                      colors: [
+                        Color(0xFF0D0D0D),
+                        Color(0xFF1C1C1C),
+                        Color(0xFF2E2E2E),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : null,
+              image: !widget.isDarkMode
+                  ? DecorationImage(
+                      image: AssetImage('assets/home.jpg'),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+            ),
+          ),
+          BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: widget.isDarkMode ? 3 : 6,
+              sigmaY: widget.isDarkMode ? 3 : 6,
+            ),
+            child: Container(
+              color: widget.isDarkMode
+                  ? Colors.black.withOpacity(0.2)
+                  : Colors.black.withOpacity(0.25),
+            ),
+          ),
 
           if (isLoading)
-            const Center(
-              child: CircularProgressIndicator(color: Colors.blueAccent),
-            )
+            Center(child: CircularProgressIndicator(color: mainColor))
           else
-            SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 100,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // 🖼️ الصورة الشخصية
-                  GestureDetector(
-                    onTap: pickImage,
-                    child: Stack(
-                      alignment: Alignment.bottomRight,
-                      children: [
-                        CircleAvatar(
-                          radius: 55,
-                          backgroundImage: avatarUrl != null
-                              ? NetworkImage(avatarUrl!)
-                              : const AssetImage('assets/avatar.png')
-                                    as ImageProvider,
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: Colors.blueAccent,
-                            shape: BoxShape.circle,
+            SafeArea(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            color: textColor,
                           ),
-                          child: const Icon(
-                            Icons.edit,
-                            size: 18,
-                            color: Colors.white,
-                          ),
+                          onPressed: () => Navigator.pop(context),
                         ),
-                      ],
-                    ),
+                      ),
+                      SizedBox(height: 10),
+                      // 🖼️ الصورة الشخصية
+                      GestureDetector(
+                        onTap: pickImage,
+                        child: Stack(
+                          alignment: Alignment.bottomRight,
+                          children: [
+                            CircleAvatar(
+                              radius: 55,
+                              backgroundImage: avatarUrl != null
+                                  ? NetworkImage(avatarUrl!)
+                                  : const AssetImage('assets/avatar.png')
+                                        as ImageProvider,
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: mainColor,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.edit,
+                                size: 18,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 25),
+
+                      // 🧑 الاسم
+                      CustomTextField(
+                        controller: nameController,
+                        hint: "Name",
+                        type: TextInputType.name,
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // 📍 العنوان
+                      CustomTextField(
+                        controller: addressController,
+                        hint: "Address",
+                        type: TextInputType.streetAddress,
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // 📧 الإيميل (عرض فقط)
+                      CustomTextField(
+                        controller: TextEditingController(text: email ?? ''),
+                        hint: "Email (read-only)",
+                        enable: false,
+                        type: TextInputType.emailAddress,
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      // 🔘 زر الحفظ
+                      CustomButton(
+                        color: mainColor,
+                        fontSize: 16,
+                        text: isSaving ? 'Saving...' : 'Save Changes',
+                        onTap: isSaving ? null : saveChanges,
+                      ),
+                    ],
                   ),
-
-                  const SizedBox(height: 25),
-
-                  // 🧑 الاسم
-                  CustomTextField(
-                    controller: nameController,
-                    hint: "Name",
-                    type: TextInputType.name,
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // 📍 العنوان
-                  CustomTextField(
-                    controller: addressController,
-                    hint: "Address",
-                    type: TextInputType.streetAddress,
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // 📧 الإيميل (عرض فقط)
-                  CustomTextField(
-                    controller: TextEditingController(text: email ?? ''),
-                    hint: "Email (read-only)",
-                    enable: false,
-                    type: TextInputType.emailAddress,
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  // 🔘 زر الحفظ
-                  CustomButton(
-                    fontSize: 16,
-                    text: isSaving ? 'Saving...' : 'Save Changes',
-                    onTap: isSaving ? null : saveChanges,
-                  ),
-                ],
+                ),
               ),
             ),
         ],

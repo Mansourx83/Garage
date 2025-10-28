@@ -52,13 +52,13 @@ class CarDetails extends StatelessWidget {
           /// ✨ تأثير البلور أو الشادو حسب الثيم
           BackdropFilter(
             filter: ImageFilter.blur(
-              sigmaX: isDarkMode ? 3 : 10,
-              sigmaY: isDarkMode ? 3 : 10,
+              sigmaX: isDarkMode ? 3 : 6,
+              sigmaY: isDarkMode ? 3 : 6,
             ),
             child: Container(
               color: isDarkMode
-                  ? Colors.black.withOpacity(0.3)
-                  : Colors.black.withOpacity(0.35),
+                  ? Colors.black.withOpacity(0.2)
+                  : Colors.black.withOpacity(0.25),
             ),
           ),
 
