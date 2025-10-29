@@ -5,7 +5,8 @@ import 'package:garage/core/components/custom_button.dart';
 import 'package:garage/core/components/custom_snackbar.dart';
 import 'package:garage/core/components/custom_text_field.dart';
 import 'package:garage/features/auth/auth_page.dart';
-import 'package:garage/features/home/home_page.dart'; // صفحة الهوم (هتحتاج تعملها)
+import 'package:garage/features/home/home_page.dart';
+import 'package:garage/features/admin/admin_page.dart'; // صفحة الأدمن
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends StatefulWidget {
@@ -21,6 +22,10 @@ class _LoginPageState extends State<LoginPage> {
 
   bool isLoading = false;
 
+  /// 🧑‍💼 بيانات الأدمن (غيرهم حسب الحاجة)
+  final String adminEmail = 'admin@gmail.com';
+  final String adminPassword = 'Admin@123';
+
   Future<void> loginUser() async {
     final supabase = Supabase.instance.client;
     final email = emailController.text.trim().toLowerCase();
@@ -34,6 +39,17 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => isLoading = true);
 
     try {
+      // ✅ تحقق أولًا إذا كان أدمن
+      if (email == adminEmail && password == adminPassword) {
+        showCustomSnackBar(context, 'Welcome Admin!');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AdminPage()),
+        );
+        return;
+      }
+
+      // 👇 تسجيل دخول المستخدم العادي
       final response = await supabase.auth.signInWithPassword(
         email: email,
         password: password,
@@ -41,14 +57,12 @@ class _LoginPageState extends State<LoginPage> {
 
       final user = response.user;
 
-      // ✅ التحقق من حالة التفعيل
       if (user != null && user.emailConfirmedAt == null) {
         showCustomSnackBar(
           context,
-          'Your email is not confirmed. We sent you a new verification email.',
+          'Your email is not confirmed. Please verify your email.',
           isError: true,
         );
-
         setState(() => isLoading = false);
         return;
       }
@@ -128,7 +142,6 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 24),
 
-                        /// حقل البريد الإلكتروني
                         CustomTextField(
                           controller: emailController,
                           hint: 'Email',
@@ -137,7 +150,6 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        /// حقل كلمة المرور
                         CustomTextField(
                           controller: passwordController,
                           hint: 'Password',
@@ -147,7 +159,6 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 24),
 
-                        /// زر تسجيل الدخول
                         CustomButton(
                           text: isLoading ? 'Logging in...' : 'Login',
                           fontSize: 16,

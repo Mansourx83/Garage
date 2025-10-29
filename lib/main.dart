@@ -24,7 +24,6 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // home: AuthPage(),
       home: supabase.auth.currentSession == null
           ? const LoginPage()
           : const HomePage(),
