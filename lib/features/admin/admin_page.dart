@@ -75,12 +75,14 @@ class _AdminPageState extends State<AdminPage> {
 
   // 📸 Pick image
   Future<void> _pickImage() async {
+    FocusScope.of(context).unfocus();
     final picked = await _picker.pickImage(source: ImageSource.gallery);
     if (picked != null) setState(() => imageFile = picked);
   }
 
   // 🚀 Upload car
   Future<void> _uploadCar() async {
+    FocusScope.of(context).unfocus();
     // Validation check
     final error = CarValidator.validateAll(
       engine: _engine.text,
@@ -152,16 +154,19 @@ class _AdminPageState extends State<AdminPage> {
   Widget build(BuildContext context) {
     final isWide = MediaQuery.of(context).size.width > 700;
 
-    return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          _buildBackground(),
-          SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 80),
-            child: Center(child: _buildFormContainer(isWide)),
-          ),
-        ],
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            _buildBackground(),
+            SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 80),
+              child: Center(child: _buildFormContainer(isWide)),
+            ),
+          ],
+        ),
       ),
     );
   }

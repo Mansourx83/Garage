@@ -62,6 +62,7 @@ class _AccountPageState extends State<AccountPage> {
 
   // 📸 اختيار صورة جديدة
   Future<void> pickImage() async {
+    FocusScope.of(context).unfocus();
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked == null) return;
@@ -98,6 +99,7 @@ class _AccountPageState extends State<AccountPage> {
 
   // 💾 حفظ التعديلات
   Future<void> saveChanges() async {
+    FocusScope.of(context).unfocus();
     try {
       setState(() => isSaving = true);
       final user = supabase.auth.currentUser;
@@ -126,6 +128,7 @@ class _AccountPageState extends State<AccountPage> {
 
   // 🚪 تسجيل الخروج
   Future<void> logout() async {
+    FocusScope.of(context).unfocus();
     await supabase.auth.signOut();
     if (!mounted) return;
 
@@ -143,131 +146,134 @@ class _AccountPageState extends State<AccountPage> {
         : Colors.blueAccent;
     final Color textColor = Colors.white;
 
-    return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: widget.isDarkMode
-                  ? const LinearGradient(
-                      colors: [
-                        Color(0xFF0D0D0D),
-                        Color(0xFF1C1C1C),
-                        Color(0xFF2E2E2E),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    )
-                  : null,
-              image: !widget.isDarkMode
-                  ? const DecorationImage(
-                      image: AssetImage('assets/home.jpg'),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                gradient: widget.isDarkMode
+                    ? const LinearGradient(
+                        colors: [
+                          Color(0xFF0D0D0D),
+                          Color(0xFF1C1C1C),
+                          Color(0xFF2E2E2E),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : null,
+                image: !widget.isDarkMode
+                    ? const DecorationImage(
+                        image: AssetImage('assets/home.jpg'),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
+              ),
             ),
-          ),
-          BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: widget.isDarkMode ? 3 : 6,
-              sigmaY: widget.isDarkMode ? 3 : 6,
+            BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: widget.isDarkMode ? 3 : 6,
+                sigmaY: widget.isDarkMode ? 3 : 6,
+              ),
+              child: Container(
+                color: widget.isDarkMode
+                    ? Colors.black.withOpacity(0.2)
+                    : Colors.black.withOpacity(0.25),
+              ),
             ),
-            child: Container(
-              color: widget.isDarkMode
-                  ? Colors.black.withOpacity(0.2)
-                  : Colors.black.withOpacity(0.25),
-            ),
-          ),
-          if (isLoading)
-            Center(child: CircularProgressIndicator(color: mainColor))
-          else
-            SafeArea(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            color: textColor,
+            if (isLoading)
+              Center(child: CircularProgressIndicator(color: mainColor))
+            else
+              SafeArea(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              color: textColor,
+                            ),
+                            onPressed: () => Navigator.pop(context),
                           ),
-                          onPressed: () => Navigator.pop(context),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      GestureDetector(
-                        onTap: pickImage,
-                        child: Stack(
-                          alignment: Alignment.bottomRight,
-                          children: [
-                            CircleAvatar(
-                              radius: 55,
-                              backgroundImage: avatarUrl != null
-                                  ? NetworkImage(avatarUrl!)
-                                  : const AssetImage('assets/avatar.png')
-                                        as ImageProvider,
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: mainColor,
-                                shape: BoxShape.circle,
+                        const SizedBox(height: 10),
+                        GestureDetector(
+                          onTap: pickImage,
+                          child: Stack(
+                            alignment: Alignment.bottomRight,
+                            children: [
+                              CircleAvatar(
+                                radius: 55,
+                                backgroundImage: avatarUrl != null
+                                    ? NetworkImage(avatarUrl!)
+                                    : const AssetImage('assets/avatar.png')
+                                          as ImageProvider,
                               ),
-                              child: const Icon(
-                                Icons.edit,
-                                size: 18,
-                                color: Colors.white,
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: mainColor,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.edit,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 25),
-                      CustomTextField(
-                        controller: nameController,
-                        hint: "Name",
-                        type: TextInputType.name,
-                      ),
-                      const SizedBox(height: 16),
-                      CustomTextField(
-                        controller: addressController,
-                        hint: "Address",
-                        type: TextInputType.streetAddress,
-                      ),
-                      const SizedBox(height: 16),
-                      CustomTextField(
-                        controller: TextEditingController(text: email ?? ''),
-                        hint: "Email (read-only)",
-                        enable: false,
-                        type: TextInputType.emailAddress,
-                      ),
-                      const SizedBox(height: 30),
-                      CustomButton(
-                        color: mainColor,
-                        fontSize: 16,
-                        text: isSaving ? 'Saving...' : 'Save Changes',
-                        onTap: isSaving ? null : saveChanges,
-                      ),
-                      const SizedBox(height: 20),
-                      // 🚪 زر الخروج
-                      CustomButton(
-                        color: mainColor,
-                        fontSize: 16,
-                        text: 'Logout',
-                        onTap: logout,
-                      ),
-                    ],
+                        const SizedBox(height: 25),
+                        CustomTextField(
+                          controller: nameController,
+                          hint: "Name",
+                          type: TextInputType.name,
+                        ),
+                        const SizedBox(height: 16),
+                        CustomTextField(
+                          controller: addressController,
+                          hint: "Address",
+                          type: TextInputType.streetAddress,
+                        ),
+                        const SizedBox(height: 16),
+                        CustomTextField(
+                          controller: TextEditingController(text: email ?? ''),
+                          hint: "Email (read-only)",
+                          enable: false,
+                          type: TextInputType.emailAddress,
+                        ),
+                        const SizedBox(height: 30),
+                        CustomButton(
+                          color: mainColor,
+                          fontSize: 16,
+                          text: isSaving ? 'Saving...' : 'Save Changes',
+                          onTap: isSaving ? null : saveChanges,
+                        ),
+                        const SizedBox(height: 20),
+                        // 🚪 زر الخروج
+                        CustomButton(
+                          color: mainColor,
+                          fontSize: 16,
+                          text: 'Logout',
+                          onTap: logout,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

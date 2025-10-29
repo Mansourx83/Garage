@@ -23,6 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   bool isLoading = false;
 
   Future<void> loginUser() async {
+    FocusScope.of(context).unfocus();
     final supabase = Supabase.instance.client;
     final email = emailController.text.trim().toLowerCase();
     final password = passwordController.text.trim();
@@ -97,106 +98,112 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          /// الخلفية
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/car.jpg'),
-                fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            /// الخلفية
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/car.jpg'),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
 
-          /// تأثير Blur على الخلفية
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-            child: Container(color: Colors.black.withOpacity(0.25)),
-          ),
+            /// تأثير Blur على الخلفية
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+              child: Container(color: Colors.black.withOpacity(0.25)),
+            ),
 
-          /// الفورم الزجاجي
-          Center(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Container(
-                    width: 350,
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white.withOpacity(0.3)),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          "Login",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
+            /// الفورم الزجاجي
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Container(
+                      width: 350,
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
                         ),
-                        const SizedBox(height: 24),
-
-                        CustomTextField(
-                          controller: emailController,
-                          hint: 'Email',
-                          type: TextInputType.emailAddress,
-                          icon: Icons.email,
-                        ),
-                        const SizedBox(height: 16),
-
-                        CustomTextField(
-                          controller: passwordController,
-                          hint: 'Password',
-                          type: TextInputType.text,
-                          icon: Icons.lock,
-                          obscure: true,
-                        ),
-                        const SizedBox(height: 24),
-
-                        CustomButton(
-                          text: isLoading ? 'Logging in...' : 'Login',
-                          fontSize: 16,
-                          onTap: isLoading ? null : loginUser,
-                        ),
-
-                        const SizedBox(height: 8),
-
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const AuthPage(),
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            "Don't have an account? Sign Up",
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            "Login",
                             style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
-                              decoration: TextDecoration.underline,
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 24),
+
+                          CustomTextField(
+                            controller: emailController,
+                            hint: 'Email',
+                            type: TextInputType.emailAddress,
+                            icon: Icons.email,
+                          ),
+                          const SizedBox(height: 16),
+
+                          CustomTextField(
+                            controller: passwordController,
+                            hint: 'Password',
+                            type: TextInputType.text,
+                            icon: Icons.lock,
+                            obscure: true,
+                          ),
+                          const SizedBox(height: 24),
+
+                          CustomButton(
+                            text: isLoading ? 'Logging in...' : 'Login',
+                            fontSize: 16,
+                            onTap: isLoading ? null : loginUser,
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          GestureDetector(
+                            onTap: () {
+                              FocusScope.of(context).unfocus();
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AuthPage(),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              "Don't have an account? Sign Up",
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
