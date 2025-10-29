@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:garage/core/constants/constants.dart';
-import 'package:garage/features/auth/auth_page.dart';
 import 'package:garage/features/auth/login_page.dart';
 import 'package:garage/features/home/home_page.dart';
-import 'package:garage/features/admin/admin_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
