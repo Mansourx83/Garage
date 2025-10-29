@@ -1,5 +1,11 @@
-# 🚗 Garage App
+# Garage
 
+<!-- Preview Image -->
+<p align="center">
+  <img src="assets/main.png" alt="App Preview" style="width:100%;max-width:1000px;display:block;margin:auto;"/>
+</p>
+
+## Overview
 Garage is a modern car marketplace application built with **Flutter** and **Supabase**.  
 It allows users to **browse, filter, and book cars** based on their preferred brand.  
 Each user can **create an account**, verify it via email, and manage their profile with a personal photo.  
