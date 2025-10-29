@@ -26,7 +26,7 @@ Admins have access to a dedicated **Dashboard (Admin Page)** to manage the liste
 ---
 
 ## 🧱 Project Structure
-![alt text](image.png)
+![alt text](image-1.png)
 
 ---
 
