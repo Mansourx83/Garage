@@ -12,20 +12,20 @@ class CarValidator {
   }) {
     if (engine.trim().isEmpty) return "Please enter the engine capacity";
     final engineValue = int.tryParse(engine.trim());
-    if (engineValue == null || engineValue < 1200 || engineValue > 3000) {
-      return "Engine must be between 1200 and 3000 cc";
+    if (engineValue == null || engineValue < 1200 || engineValue > 8000) {
+      return "Engine must be between 1200 and 8000 cc";
     }
 
     if (speed.trim().isEmpty) return "Please enter the car speed";
     final speedValue = int.tryParse(speed.trim());
-    if (speedValue == null || speedValue < 100 || speedValue > 400) {
-      return "Speed must be between 100 and 400 km/h";
+    if (speedValue == null || speedValue < 100 || speedValue > 600) {
+      return "Speed must be between 100 and 600 km/h";
     }
 
     if (seats.trim().isEmpty) return "Please enter number of seats";
     final seatsValue = int.tryParse(seats.trim());
-    if (seatsValue == null || seatsValue < 2 || seatsValue > 8) {
-      return "Seats must be between 2 and 8";
+    if (seatsValue == null || seatsValue < 1 || seatsValue > 8) {
+      return "Seats must be between 1 and 8";
     }
 
     if (model.trim().isEmpty) return "Please enter the car model";

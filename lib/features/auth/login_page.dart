@@ -22,10 +22,6 @@ class _LoginPageState extends State<LoginPage> {
 
   bool isLoading = false;
 
-  /// 🧑‍💼 بيانات الأدمن (غيرهم حسب الحاجة)
-  final String adminEmail = 'admin@gmail.com';
-  final String adminPassword = 'Admin@123';
-
   Future<void> loginUser() async {
     final supabase = Supabase.instance.client;
     final email = emailController.text.trim().toLowerCase();
@@ -39,17 +35,6 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => isLoading = true);
 
     try {
-      // ✅ تحقق أولًا إذا كان أدمن
-      if (email == adminEmail && password == adminPassword) {
-        showCustomSnackBar(context, 'Welcome Admin!');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const AdminPage()),
-        );
-        return;
-      }
-
-      // 👇 تسجيل دخول المستخدم العادي
       final response = await supabase.auth.signInWithPassword(
         email: email,
         password: password,
@@ -60,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
       if (user != null && user.emailConfirmedAt == null) {
         showCustomSnackBar(
           context,
-          'Your email is not confirmed. Please verify your email.',
+          'Your email is not confirmed.',
           isError: true,
         );
         setState(() => isLoading = false);
@@ -68,22 +53,41 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       if (response.session != null) {
-        showCustomSnackBar(context, 'Login successful!');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
+        // ✅ بعد تسجيل الدخول، نجيب الدور من جدول profiles
+        final users = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', user!.id)
+            .maybeSingle();
+
+        if (users == null) {
+          showCustomSnackBar(
+            context,
+            'No account found go to create ',
+            isError: true,
+          );
+          setState(() => isLoading = false);
+          return;
+        }
+
+        final role = users['role'] ?? 'user';
+
+        if (role == 'admin') {
+          showCustomSnackBar(context, 'Welcome Admin!');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const AdminPage()),
+          );
+        } else {
+          showCustomSnackBar(context, 'Login successful!');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+        }
       }
     } on AuthException catch (e) {
-      if (e.message.toLowerCase().contains('invalid login credentials')) {
-        showCustomSnackBar(
-          context,
-          'Email or password is incorrect.',
-          isError: true,
-        );
-      } else {
-        showCustomSnackBar(context, e.message, isError: true);
-      }
+      showCustomSnackBar(context, e.message, isError: true);
     } catch (e) {
       showCustomSnackBar(context, 'Something went wrong', isError: true);
     } finally {

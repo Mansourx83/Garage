@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:garage/features/admin/widgets/validation.dart';
+import 'package:garage/features/auth/login_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:garage/core/components/custom_text_field.dart';
@@ -27,10 +28,30 @@ class _AdminPageState extends State<AdminPage> {
   final _speed = TextEditingController();
   final _seats = TextEditingController();
 
-  final brands = ['Bmw', 'Lamborghini', 'Audi', 'Ford', 'Dodge', 'Mercedes'];
+  final brands = [
+    'Bmw',
+    'Lamborghini',
+    'Audi',
+    'Ford',
+    'Dodge',
+    'McLaren',
+    'Mercedes',
+  ];
   String? selectedBrand;
   XFile? imageFile;
   bool isLoading = false;
+  final supabase = Supabase.instance.client;
+
+  Future<void> logout() async {
+    await supabase.auth.signOut();
+    if (!mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+      (route) => false, // ← دي مهمة علشان تمسح كل الصفحات القديمة
+    );
+  }
 
   // ✅ SnackBar Helper
   void _showSnack(String message, {bool success = true}) {
@@ -49,6 +70,7 @@ class _AdminPageState extends State<AdminPage> {
         duration: const Duration(seconds: 2),
       ),
     );
+    print("Upload error: $message");
   }
 
   // 📸 Pick image
@@ -179,10 +201,10 @@ class _AdminPageState extends State<AdminPage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
 
             _buildCarDetailsRow(),
-            const SizedBox(height: 25),
+            const SizedBox(height: 20),
 
             CustomTextField(
               controller: _model,
@@ -202,7 +224,7 @@ class _AdminPageState extends State<AdminPage> {
             const SizedBox(height: 20),
 
             _buildImagePicker(),
-            const SizedBox(height: 25),
+            const SizedBox(height: 20),
 
             CustomDropdown(
               value: selectedBrand,
@@ -221,7 +243,7 @@ class _AdminPageState extends State<AdminPage> {
                   .toList(),
               onChanged: (v) => setState(() => selectedBrand = v),
             ),
-            const SizedBox(height: 35),
+            const SizedBox(height: 12),
 
             // ✅ Button with loading indicator
             CustomButton(
@@ -244,6 +266,8 @@ class _AdminPageState extends State<AdminPage> {
                       ),
               ),
             ),
+            const SizedBox(height: 12),
+            CustomButton(fontSize: 16, text: 'Logout', onTap: logout),
           ],
         ),
       ),

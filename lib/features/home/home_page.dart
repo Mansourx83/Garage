@@ -35,6 +35,7 @@ class _HomePageState extends State<HomePage> {
     'Ford',
     'Dodge',
     'Mercedes',
+    'McLaren',
     'Jaguar',
   ];
 
