@@ -39,3 +39,4 @@ Admins have access to a dedicated **Dashboard (Admin Page)** to manage the liste
 - **Dart** — Core programming language  
 
 ---
+> **Developed with ❤️ using Flutter.**
